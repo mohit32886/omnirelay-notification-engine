@@ -1,0 +1,91 @@
+server:
+  port: 8080
+  tomcat:
+    threads:
+      max: 400
+
+spring:
+  application:
+    name: omnirelay-notification-engine
+  threads:
+    virtual:
+      enabled: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      acks: all
+      retries: 3
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: omnirelay-delivery-workers
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 500ms
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics,circuitbreakers
+  endpoint:
+    health:
+      show-details: always
+  health:
+    redis:
+      enabled: false
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+omnirelay:
+  failover:
+    default-primary: SENDGRID
+    sliding-window-size: 20
+    minimum-number-of-calls: 5
+    failure-rate-threshold: 50.0
+    slow-call-rate-threshold: 60.0
+    slow-call-duration-threshold: 1500ms
+    wait-duration-in-open-state: 15s
+    permitted-number-of-calls-in-half-open-state: 5
+    automatic-failover-enabled: true
+    target-max-mttr: 30s
+  providers:
+    connect-timeout: 800ms
+    request-timeout: 2000ms
+    simulation-mode: ${OMNIRELAY_SIMULATION_MODE:false}
+    sendgrid-endpoints:
+      US_EAST: ${SENDGRID_US_EAST_URL:http://localhost:18081}
+      EU: ${SENDGRID_EU_URL:http://localhost:18081}
+      AP_NORTHEAST: ${SENDGRID_AP_NORTHEAST_URL:http://localhost:18081}
+      US_GOV: ${SENDGRID_US_GOV_URL:http://localhost:18081}
+    ses-endpoints:
+      US_EAST: ${SES_US_EAST_URL:http://localhost:18082}
+      EU: ${SES_EU_URL:http://localhost:18082}
+      AP_NORTHEAST: ${SES_AP_NORTHEAST_URL:http://localhost:18082}
+      US_GOV: ${SES_US_GOV_URL:http://localhost:18082}
+  kafka:
+    enabled: ${OMNIRELAY_KAFKA_ENABLED:false}
+    async-dispatch: ${OMNIRELAY_KAFKA_ASYNC:false}
+  redis:
+    enabled: ${OMNIRELAY_REDIS_ENABLED:false}
+  vault:
+    enabled: ${OMNIRELAY_VAULT_ENABLED:false}
+    uri: ${VAULT_URI:http://localhost:8200}
+    token: ${VAULT_TOKEN:omnirelay-dev-root-token}
+    kv-mount: secret
+    secret-path: omnirelay/runtime
+    rotation-interval: 6h
+    grace-window: 15m
+  webhook:
+    request-timeout: 3s
+    max-attachment-bytes: 5242880
+    verify-inbound-signature: false
+  residency:
+    strict-gov-cloud-pinning: true
+    enforce-regional-isolation: true

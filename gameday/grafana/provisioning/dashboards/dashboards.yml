@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: 'OmniRelay Dashboards'
+    orgId: 1
+    folder: 'OmniRelay Chaos'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

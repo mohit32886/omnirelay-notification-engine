@@ -1,0 +1,164 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "name": "SendGrid Blackout & Failover",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 20 },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Notification Delivery Throughput by Provider (SendGrid vs AWS SESv2)",
+      "targets": [
+        {
+          "expr": "sum by (provider) (rate(omnirelay_notifications_delivered_total[10s]))",
+          "legendFormat": "{{provider}}"
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 0 },
+      "id": 2,
+      "title": "Lost / Dropped Messages",
+      "targets": [
+        {
+          "expr": "sum(omnirelay_notifications_dropped_total) or vector(0)",
+          "legendFormat": "Dropped"
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "options": { "1": { "text": "SENDGRID", "color": "blue" }, "2": { "text": "AWS_SES_V2", "color": "orange" } }, "type": "value" }
+          ]
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 0 },
+      "id": 3,
+      "title": "EU Active Provider State",
+      "targets": [
+        {
+          "expr": "omnirelay_active_provider_gauge{region=\"eu\"}",
+          "legendFormat": "EU"
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 0 },
+      "id": 4,
+      "title": "Failover Switches",
+      "targets": [
+        {
+          "expr": "omnirelay_failover_switches_total",
+          "legendFormat": "Switches"
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100
+        }
+      },
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 4 },
+      "id": 5,
+      "title": "Resilience4j Circuit Breaker State & Failure Rate",
+      "targets": [
+        {
+          "expr": "resilience4j_circuitbreaker_failure_rate{name=\"sendgrid-cb\"}",
+          "legendFormat": "SendGrid Failure Rate %"
+        },
+        {
+          "expr": "resilience4j_circuitbreaker_state{name=\"sendgrid-cb\",state=\"open\"} * 100",
+          "legendFormat": "SendGrid CB OPEN"
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        }
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 9 },
+      "id": 6,
+      "title": "Provider Delivery Latency & Regional Residency Distribution",
+      "targets": [
+        {
+          "expr": "rate(omnirelay_provider_delivery_latency_ms_seconds_sum[10s]) / rate(omnirelay_provider_delivery_latency_ms_seconds_count[10s]) * 1000",
+          "legendFormat": "{{provider}} ({{region}})"
+        }
+      ],
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "2s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["omnirelay", "chaos", "failover", "resilience4j"],
+  "templating": { "list": [] },
+  "time": { "from": "now-5m", "to": "now" },
+  "title": "OmniRelay Chaos Gameday — Active-Passive Failover & Zero-Loss Proof",
+  "uid": "omnirelay-chaos-gameday",
+  "version": 1
+}

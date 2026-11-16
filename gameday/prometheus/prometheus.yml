@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 2s
+  evaluation_interval: 2s
+
+scrape_configs:
+  - job_name: 'omnirelay-notification-engine'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['omnirelay-engine:8080']

@@ -1,0 +1,23 @@
+omnirelay:
+  failover:
+    default-primary: SENDGRID
+    sliding-window-size: 10
+    minimum-number-of-calls: 5
+    failure-rate-threshold: 50.0
+    slow-call-rate-threshold: 60.0
+    slow-call-duration-threshold: 800ms
+    wait-duration-in-open-state: 5s
+    permitted-number-of-calls-in-half-open-state: 3
+    automatic-failover-enabled: true
+    target-max-mttr: 30s
+  providers:
+    connect-timeout: 500ms
+    request-timeout: 1200ms
+    simulation-mode: false
+  kafka:
+    enabled: false
+  redis:
+    enabled: false
+  vault:
+    enabled: false
+    grace-window: 10m

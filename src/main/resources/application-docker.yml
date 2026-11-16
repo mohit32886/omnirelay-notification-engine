@@ -1,0 +1,26 @@
+management:
+  health:
+    redis:
+      enabled: true
+
+omnirelay:
+  kafka:
+    enabled: true
+    async-dispatch: false
+  redis:
+    enabled: true
+  vault:
+    enabled: true
+    uri: ${VAULT_URI:http://vault:8200}
+  providers:
+    simulation-mode: false
+    sendgrid-endpoints:
+      US_EAST: http://toxiproxy:18081
+      EU: http://toxiproxy:18081
+      AP_NORTHEAST: http://toxiproxy:18081
+      US_GOV: http://toxiproxy:18081
+    ses-endpoints:
+      US_EAST: http://toxiproxy:18082
+      EU: http://toxiproxy:18082
+      AP_NORTHEAST: http://toxiproxy:18082
+      US_GOV: http://toxiproxy:18082
